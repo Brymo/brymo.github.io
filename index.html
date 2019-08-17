@@ -5,7 +5,7 @@
 </head>
 <body>
     <div class="main_wrapper">
-        <div class="header" id="output">This is my website</div>
+        <div class="header" id="output">VigKraken.io</div>
         <textarea id="inputbox"type="text" class="cipher_input" placeholder="Enter your vignere ciphertext..."></textarea> 
         <button id="finalise" type="button">Solve!</button>
     </div>
@@ -17,7 +17,7 @@
 
             let inputString = document.getElementById("inputbox").value;
             let output = document.getElementById("output"); 
-            output.innerHTML = await key(inputString);
+            output.innerHTML = "Key: " + await key(inputString);
             
         };
     
