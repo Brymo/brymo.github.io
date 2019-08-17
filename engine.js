@@ -40,9 +40,14 @@ async function key(cipherCode){
 
         }
 
-
+        console.log(ICList);
         let maxIC = Math.max(...ICList);
-        return ICList.findIndex((element)=> element == maxIC) + 1; //Accomodate for there being no 0 key
+        const tweakCoefficient = 0.2;
+        const maxIndex = ICList.findIndex((element)=> element == maxIC) + 1; //Accomodate for there being no 0 key
+        const otherCandidates = ICList.filter((IC,index) => (IC > maxIC - tweakCoefficient && (maxIndex) % (index+1) == 0));
+        console.log(otherCandidates);
+        const runnerUp = otherCandidates.length > 0 ? ICList.findIndex((element)=> element == otherCandidates[0]) + 1 : null;
+        return runnerUp == null ? maxIndex : runnerUp;
 
     }
 
@@ -125,7 +130,13 @@ async function key(cipherCode){
     function getDeviationFromEnglish(frequencies){
         let dev = 0.0;
         let normalFreq = englishFrequencies();
-        for(key in frequencies) dev += Math.abs(frequencies[key]-normalFreq[key]);
+        let  i = 0
+        //Would use a for loop but that kills the program.  Do research plz
+        while(i < 26){
+            let key = String.fromCharCode(ascii('A')+i);
+            dev += Math.abs(frequencies[key]-normalFreq[key]);
+            i++;
+        }
         return dev/26.0;
     }
 

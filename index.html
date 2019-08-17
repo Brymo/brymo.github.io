@@ -10,10 +10,11 @@
         <button id="finalise" type="button">Solve!</button>
     </div>
 
-    
+
     <script>
 
         document.getElementById('finalise').onclick = async ()=>{
+
             let inputString = document.getElementById("inputbox").value;
             let output = document.getElementById("output"); 
             output.innerHTML = await key(inputString);
