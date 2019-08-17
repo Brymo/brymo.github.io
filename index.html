@@ -4,18 +4,11 @@
     <script type="text/javascript" src="engine.js"></script>
 </head>
 <body>
-    <div class="main_wrapper">
-
-        <div class="aesthetics">
-            VigKraken.
-        </div>
-        <div class="functionals">
+    <div class="main_wrapper">      
+        <textarea id="inputbox"type="text" class="cipher_input" placeholder="Enter your vignere ciphertext..."></textarea> 
+        <div class="aligner">
+            <button id="finalise" type="button">Solve!</button>
             <div class="header" id="output">VigKraken.io</div>
-            <textarea id="inputbox"type="text" class="cipher_input" placeholder="Enter your vignere ciphertext..."></textarea>
-            <div class="aligner">
-                <button id="finalise" type="button" class="confirm_button">Solve!</button>
-                <div id="answer" class="slider"></div>
-            </div>
         </div>
     </div>
 
@@ -26,7 +19,7 @@
 
             let inputString = document.getElementById("inputbox").value;
             let output = document.getElementById("output"); 
-            output.innerHTML = "Key: " + await key(inputString);
+            output.innerHTML = await key(inputString);
             
         };
     
