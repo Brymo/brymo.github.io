@@ -21,6 +21,10 @@
     width: 100%;
     height: 70%;
     resize: none;
+    margin: 1em 0;
+    border-radius: 1em;
+    padding: 1em;
+    box-shadow: 0.1em 0.1em 0.5em;
 }
 
 .output_wrapper{
@@ -34,7 +38,6 @@
     display: flex;
     justify-content: space-between;
     width: 100%;
-    margin-top:1em;
 }
 
 #help_text{
@@ -45,6 +48,7 @@
 
 #finalise{
     height:2em;
+    box-shadow: 0.1em 0.1em 0.5em;
 }
 
 #title{
