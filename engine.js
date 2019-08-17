@@ -1,4 +1,4 @@
-async function key(cipherCode) {
+function key(cipherCode) {
   var ascii = chr => {
     return chr.charCodeAt(0);
   };

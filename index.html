@@ -4,11 +4,15 @@
     <script type="text/javascript" src="engine.js"></script>
 </head>
 <body>
-    <div class="main_wrapper">      
-        <textarea id="inputbox"type="text" class="cipher_input" placeholder="Enter your vignere ciphertext..."></textarea> 
+    <div class="main_wrapper">
+        <div id="title">Enter your vignere ciphertext...</div>   
+        <textarea id="inputbox"type="text" class="cipher_input" placeholder="Text must have at least 20 characters"></textarea> 
         <div class="aligner">
             <button id="finalise" type="button">Solve!</button>
-            <div class="header" id="output">VigKraken.io</div>
+            <div class="output_wrapper">
+                <div class="header" id="output">VigKraken.io</div>
+                <div id="help_text">Awaiting input.</div>
+            </div>
         </div>
     </div>
 
@@ -19,7 +23,12 @@
 
             let inputString = document.getElementById("inputbox").value;
             let output = document.getElementById("output"); 
-            output.innerHTML = await key(inputString);
+
+            let engineOutput = key(inputString);
+            output.innerHTML = engineOutput;
+
+            let helpText = document.getElementById("help_text");
+            helpText.innerHTML = engineOutput == "" ? "No key found." : "is probably the key.";
             
         };
     

@@ -23,11 +23,35 @@
     resize: none;
 }
 
+.output_wrapper{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+}
+
 .aligner{
     display: flex;
     justify-content: space-between;
     width: 100%;
     margin-top:1em;
+}
+
+#help_text{
+    font-size: 1.3em;
+    font-family: 'Sunflower';
+    color: #003b99;
+}
+
+#finalise{
+    height:2em;
+}
+
+#title{
+    display: flex;
+    width:100%;
+    justify-content:flex-start;
+    font-size: 2em;
 }
 
 @font-face {
