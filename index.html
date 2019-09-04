@@ -2,37 +2,113 @@
 <head>
     <link rel="stylesheet" href="styles.css">
     <script type="text/javascript" src="engine.js"></script>
+    <script type="text/javascript" src="decode.js"></script>
 </head>
 <body>
     <div class="main_wrapper">
-        <div id="title">Enter your vignere ciphertext...</div>   
-        <textarea id="inputbox"type="text" class="cipher_input" placeholder="Text must have at least 20 characters"></textarea> 
-        <div class="aligner">
-            <button id="finalise" type="button">Solve!</button>
-            <div class="output_wrapper">
-                <div class="header" id="output">VigKraken.io</div>
-                <div id="help_text">Awaiting input.</div>
-            </div>
+        <textarea id="cipherTextInput" placeholder="Enter ciphertext (length must be > 20 characters)"></textarea>
+
+        <!--button id="run"></button-->
+        <div id="key-menu">
+            <div id="key-text">Awaiting input...</div>
+            <div id="more-keys">?</div>
+              
         </div>
+
+        <div id="alt-list"></div>
+
+        <div id="decryptedText"></div>
+
+
     </div>
 
+    <div id="logo">Vigkraken.</div>
 
     <script>
 
-        document.getElementById('finalise').onclick = async ()=>{
+        document.getElementById('cipherTextInput').oninput = async ()=>{      
+            
+            const likelyKeyOutput = document.getElementById("key-text");
+            const inputString = document.getElementById("cipherTextInput").value; 
 
-            let inputString = document.getElementById("inputbox").value;
-            let output = document.getElementById("output"); 
+            const textChars = inputString.split("");
+            const variants = getVariants(textChars, 20, []);
 
-            let engineOutput = key(inputString);
-            output.innerHTML = engineOutput;
+            const variantPromises = variants.map((value) => {
+                return new Promise((resolve, reject) => {
+                    const altkey = key(value);
+                    resolve(altkey);
+                });
+            });
 
-            let helpText = document.getElementById("help_text");
-            helpText.innerHTML = engineOutput == "" ? "No key found." : "is probably the key.";
+
+
+            Promise.all(variantPromises).then((keys)=>{
+                const uniqueKeys = [...new Set(keys)];
+                
+                likelyKeyOutput.innerHTML = uniqueKeys[0];
+                document.getElementById("decryptedText").innerHTML = vigDecode(inputString,uniqueKeys[0]);
+
+                const keyBox = document.getElementById("alt-keys");
+                const altList = document.getElementById("alt-list");
+
+                altList.innerHTML = "";
+                uniqueKeys.forEach( (key) => {
+                    
+                    const newAlt = document.createElement("div");
+                    newAlt.className = "alt-key";
+                    newAlt.innerHTML = key;
+                    newAlt.addEventListener("click",chooseAltKey(key));
+                    altList.appendChild(newAlt);
+
+                });
+            }).catch((error) => {
+                console.log(error);
+            });
             
         };
+
+        document.getElementById("more-keys").onclick =  () => {
+            const keyMenu = document.getElementById("key-menu");
+            const moreButton = document.getElementById("more-keys");
+            const alt = document.getElementById("alt-list");
+
+            keyMenu.style.display = "none";
+            alt.style.display = "flex";
+
+        }
+
+
+        var chooseAltKey = (key)=>{
+            return () =>{
+                const keyMenu = document.getElementById("key-menu");
+                const moreButton = document.getElementById("more-keys");
+                const alt = document.getElementById("alt-list");
+                const likelyKeyOutput = document.getElementById("key-text");
+                const inputString = document.getElementById("cipherTextInput").value; 
+
+                likelyKeyOutput.innerHTML = key;
+                document.getElementById("decryptedText").innerHTML = vigDecode(inputString,key);
+
+                keyMenu.style.display = "flex";
+                alt.style.display = "none";
+            }
+        }
+
+        var getVariants = (characters, iterations, variants) => {
+            if(iterations == 0){
+                return variants;
+            }
+            const lengthToRemove = (characters.length/50) * iterations;
+            const variant = characters.slice(0, characters.length - lengthToRemove);
+            const newVariants = [variant.join(""), ...variants];
+            return getVariants(characters, --iterations, newVariants);
+        }
+
+
     
     </script>
+
 
 </body>
 

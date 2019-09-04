@@ -88,7 +88,6 @@ function key(cipherCode) {
       ICList.push(ICSum / keyLen);
     }
 
-    console.log(ICList);
     let maxIC = Math.max(...ICList);
     const tweakCoefficient = 0.2;
     const maxIndex = ICList.findIndex(element => element == maxIC) + 1; //Accomodate for there being no 0 key
@@ -96,7 +95,6 @@ function key(cipherCode) {
       (IC, index) =>
         IC > maxIC - tweakCoefficient && maxIndex % (index + 1) == 0
     );
-    console.log(otherCandidates);
     const runnerUp =
       otherCandidates.length > 0
         ? ICList.findIndex(element => element == otherCandidates[0]) + 1
