@@ -7,6 +7,9 @@
     grid-template-rows: 20% 1fr;
 }
 
+#business{
+    grid-column: 1/span 1;
+}
 
 #cipherTextInput{
     grid-column: 2/span 1;
@@ -37,7 +40,8 @@
     bottom: 0.1em;
     right:0.2em;
     font-size: 0.7em;
-    display: block !important;
+    display: none;
+    cursor: pointer;
 }
 
 #decryptedText{
@@ -79,7 +83,7 @@
     grid-row: 1/span 1;
     width: 100%;
     height: 100%;
-    background-color:  #F02020;
+    background-color:  #707070;
     flex-direction: column;
     align-items: center;
     font-family: "Sunflower";
@@ -100,6 +104,7 @@
     display:flex;
     align-items: center;
     box-sizing: border-box;
+    cursor: pointer;
 }
 
 body{

@@ -9,15 +9,15 @@
         <textarea id="cipherTextInput" placeholder="Enter ciphertext (length must be > 20 characters)"></textarea>
 
         <!--button id="run"></button-->
-        <div id="key-menu">
-            <div id="key-text">Awaiting input...</div>
-            <div id="more-keys">?</div>
+        <div id="key-menu" class="business">
+            <div id="key-text" class="business">Awaiting input...</div>
+            <div id="more-keys"class="business"><u>?</u></div>
               
         </div>
 
-        <div id="alt-list"></div>
+        <div id="alt-list" class="business"></div>
 
-        <div id="decryptedText"></div>
+        <div id="decryptedText"class="business"></div>
 
 
     </div>
@@ -28,6 +28,32 @@
 
         document.getElementById('cipherTextInput').oninput = async ()=>{      
             
+            if(window.innerWidth > 1000){
+                desktopProcess();
+            }else{
+                mobileProcess();
+            }
+            
+        };
+
+        document.getElementById("more-keys").onclick =  () => {
+            const keyMenu = document.getElementById("key-menu");
+            const moreButton = document.getElementById("more-keys");
+            const alt = document.getElementById("alt-list");
+
+            keyMenu.style.display = "none";
+            alt.style.display = "flex";
+
+        }
+
+        function mobileProcess(){
+            const logo = document.getElementById("logo");
+            const inputString = document.getElementById("cipherTextInput").value; 
+
+            logo.innerHTML = key(inputString);
+        }
+
+        function desktopProcess(){
             const likelyKeyOutput = document.getElementById("key-text");
             const inputString = document.getElementById("cipherTextInput").value; 
 
@@ -46,7 +72,7 @@
             Promise.all(variantPromises).then((keys)=>{
                 const uniqueKeys = [...new Set(keys)];
                 
-                likelyKeyOutput.innerHTML = uniqueKeys[0];
+                likelyKeyOutput.innerHTML = uniqueKeys[0] == "" ? "No key found." :  uniqueKeys[0];
                 document.getElementById("decryptedText").innerHTML = vigDecode(inputString,uniqueKeys[0]);
 
                 const keyBox = document.getElementById("alt-keys");
@@ -54,28 +80,19 @@
 
                 altList.innerHTML = "";
                 uniqueKeys.forEach( (key) => {
-                    
-                    const newAlt = document.createElement("div");
-                    newAlt.className = "alt-key";
-                    newAlt.innerHTML = key;
-                    newAlt.addEventListener("click",chooseAltKey(key));
-                    altList.appendChild(newAlt);
-
+                    if (key !== ""){
+                        const newAlt = document.createElement("div");
+                        newAlt.className = "alt-key";
+                        newAlt.innerHTML = key;
+                        newAlt.addEventListener("click",chooseAltKey(key));
+                        altList.appendChild(newAlt);
+                    }
                 });
+                const moreButton = document.getElementById("more-keys");
+                moreButton.style.display = uniqueKeys.length > 1 ? "block" : "none";
             }).catch((error) => {
                 console.log(error);
             });
-            
-        };
-
-        document.getElementById("more-keys").onclick =  () => {
-            const keyMenu = document.getElementById("key-menu");
-            const moreButton = document.getElementById("more-keys");
-            const alt = document.getElementById("alt-list");
-
-            keyMenu.style.display = "none";
-            alt.style.display = "flex";
-
         }
 
 
@@ -105,7 +122,22 @@
             return getVariants(characters, --iterations, newVariants);
         }
 
+        window.addEventListener("resize",mobileOrDesktop);
 
+        function mobileOrDesktop(event){
+            const businessModules = Array.from(document.getElementsByClassName("business"));
+            if(window.innerWidth > 1000){
+                document.querySelector(".main_wrapper").style.gridTemplateColumns = "1fr 80%";
+            }else{
+                document.querySelector(".main_wrapper").style.gridTemplateColumns = "0 1fr";
+            }
+
+                            
+            businessModules.forEach( (node) => {
+                    node.style.display = window.innerWidth > 1000 ?"flex":"none";
+            });
+               
+        }
     
     </script>
 
