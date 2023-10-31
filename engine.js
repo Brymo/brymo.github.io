@@ -1,11 +1,37 @@
+const ALPHABET = ["A", "B", "C", "D", "E", "F","G", "H", "I","J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W","X", "Y", "Z"];
+
 function key(cipherCode) {
-  var ascii = chr => {
+
+  const ciphertext = cipherCode.replace(/[^a-zA-Z]/g, "").toUpperCase();
+  const keyLength = getKeyLength(ciphertext);
+  return getFinalKey(keyLength);
+
+  function getFinalKey(keyLength, keysDecrypted = 0){
+
+    if(keysDecrypted == keyLength) return "";
+
+    const columnNumber = keysDecrypted;
+    const column = getColumn(ciphertext, columnNumber, keyLength);
+
+    const deviations = ALPHABET.reduce((processedDeviations, potentialKeyChar)=>{
+      const decryptAttempt = decryptColumn(column, potentialKeyChar);
+      const decrFrequencies = getFrequencies(decryptAttempt);
+      const newDeviations = {...processedDeviations};
+      newDeviations[potentialKeyChar] = getDeviationFromEnglish(decrFrequencies);
+      return newDeviations;  
+    },{})
+
+    return mostLikelyChar(deviations) + getFinalKey(keyLength, keysDecrypted+1,)
+
+  }
+
+  function ascii(chr){
     return chr.charCodeAt(0);
   };
 
-  var getKeyLength = ciphertext => {
+  // Past Bryan discovered some sorcery here
+  function getKeyLength(ciphertext){
     let ICList = [];
-
     let cipherChars = ciphertext.split("");
 
     for (let keyLen = 1; keyLen < 20; keyLen++) {
@@ -95,46 +121,41 @@ function key(cipherCode) {
       (IC, index) =>
         IC > maxIC - tweakCoefficient && maxIndex % (index + 1) == 0
     );
-    const runnerUp =
-      otherCandidates.length > 0
-        ? ICList.findIndex(element => element == otherCandidates[0]) + 1
-        : null;
-    return runnerUp == null ? maxIndex : runnerUp;
+    const runnerUp = otherCandidates.length > 0 && ICList.findIndex(element => element == otherCandidates[0]) + 1;
+    return runnerUp || maxIndex;
   };
 
-  var getColumn = (cipherText, columnNumber, keyLength) => {
-    let columnString = [];
-    let count = columnNumber;
-    let columnChars = cipherText.split("");
-    while (count < columnChars.length) {
-      if (count % keyLength == columnNumber)
-        columnString.push(columnChars[count]);
-      count++;
-    }
-
-    return columnString;
+  function getColumn(cipherText, columnNumber, keyLength){
+    return cipherText.split("").filter((letter, index)=> index % keyLength == columnNumber);
   };
 
-  var decryptColumn = (column, potentialKey) => {
-    let decrypted = [];
+  function decryptColumn(column, potentialKey){
 
-    for (let i = 0; i < column.length; i++) {
-      let chr = column[i];
-      let letter = String.fromCharCode(
-        mod(ascii(chr) - ascii(potentialKey), 26) + ascii("A")
-      );
-      decrypted.push(letter);
-    }
+    return column.map((columnLetter)=>{
+      const asciiOfDecodedLetter = mod(ascii(columnLetter) - ascii(potentialKey), 26) + ascii("A");
+      return String.fromCharCode(asciiOfDecodedLetter);
+    });
 
-    return decrypted;
+    // I think this accounts for negative numbers
+    function mod(base, modulus){
+      return ((base % modulus) + modulus) % modulus;
+    };
+
   };
 
-  var mod = (base, modulus) => {
-    return ((base % modulus) + modulus) % modulus;
-  };
+  function getFrequencies(column) {
 
-  function englishFrequencies() {
-    return {
+    return ALPHABET.reduce((acc,letter)=>{
+      const newAcc = {...acc};
+      const frequency = column.filter((columnLetter)=>columnLetter == letter).length;
+      newAcc[letter] = (frequency/column.length) * 100;
+      return newAcc;
+    },{});
+
+  }
+
+  function getDeviationFromEnglish(frequencies) {
+    const englishFreq = {
       A: 8.167,
       B: 1.492,
       C: 2.782,
@@ -162,65 +183,19 @@ function key(cipherCode) {
       Y: 1.974,
       Z: 0.074
     };
-  }
 
-  function getFrequencies(column) {
-    let freq = {};
-    let colsize = 0.0;
+    const dev = ALPHABET.reduce((sumOfDeviations, letter)=>{
+      return sumOfDeviations + Math.abs(frequencies[letter] - englishFreq[letter]);
+    },0);
 
-    for (let i = 0; i < 26; i++)
-      freq[String.fromCharCode(ascii("A") + i)] = 0.0;
-
-    for (let ch = 0; ch < column.length; ch++) {
-      freq[column[ch]] += 1;
-      colsize += 1;
-    }
-
-    for (let key in freq) freq[key] = (freq[key] / colsize) * 100.0;
-
-    return freq;
-  }
-
-  function getDeviationFromEnglish(frequencies) {
-    let dev = 0.0;
-    let normalFreq = englishFrequencies();
-    let i = 0;
-    //Would use a for loop but that kills the program.  Do research plz
-    while (i < 26) {
-      let key = String.fromCharCode(ascii("A") + i);
-      dev += Math.abs(frequencies[key] - normalFreq[key]);
-      i++;
-    }
-    return dev / 26.0;
+    return dev / ALPHABET.length;
   }
 
   function mostLikelyChar(deviations) {
-    let lowestDeviation = 9999;
-    lowestKey = "!";
-    for (let key in deviations) {
-      if (deviations[key] < lowestDeviation) {
-        lowestDeviation = deviations[key];
-        lowestKey = key;
-      }
-    }
-    return lowestKey;
+    // find the key with the smallest deviation
+    return ALPHABET.reduce((lowestDeviationsLetter, currentLetter) => {
+      return deviations[currentLetter] < deviations[lowestDeviationsLetter] ? currentLetter : lowestDeviationsLetter; 
+    },"A");
   }
 
-  let FINAL_KEY = "";
-  let ciphertext = cipherCode.replace(/[^a-zA-Z]/g, "").toUpperCase();
-  let keyLength = getKeyLength(ciphertext);
-
-  for (let columnNumber = 0; columnNumber < keyLength; columnNumber++) {
-    let column = getColumn(ciphertext, columnNumber, keyLength);
-    deviations = {};
-    for (let char = 0; char < 26; char++) {
-      let potentialKey = String.fromCharCode(ascii("A") + char);
-      let decryptAttempt = decryptColumn(column, potentialKey);
-      let decrFrequencies = getFrequencies(decryptAttempt);
-      deviations[potentialKey] = getDeviationFromEnglish(decrFrequencies);
-    }
-    FINAL_KEY = FINAL_KEY + mostLikelyChar(deviations);
-  }
-
-  return FINAL_KEY;
 }
